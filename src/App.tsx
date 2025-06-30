@@ -9,12 +9,12 @@ import SinglePage from "./pages/SinglePage";
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/protfolio-rk">
       <div className="min-h-screen bg-gradient-to-br from-dark-950 via-dark-900 to-dark-800 text-white">
         <Navbar />
         <main>
           <Routes>
-            <Route path="/protfolio-rk/" element={<HomePage />} />
+            <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/contact" element={<ContactPage />} />
