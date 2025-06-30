@@ -17,11 +17,11 @@ function App() {
         <Navbar />
         <main>
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/projects" element={<ProjectsPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/single-page" element={<SinglePage />} />
+            <Route path="/protfolio-rk" element={<HomePage />} />
+            <Route path="/protfolio-rk/about" element={<AboutPage />} />
+            <Route path="/protfolio-rk/projects" element={<ProjectsPage />} />
+            <Route path="/protfolio-rk/contact" element={<ContactPage />} />
+            <Route path="/protfolio-rk/single-page" element={<SinglePage />} />
             {/* Catch-all route that redirects to home */}
             <Route path="*" element={<HomePage />} />
           </Routes>
