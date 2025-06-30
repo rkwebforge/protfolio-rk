@@ -2,8 +2,6 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- CSP Plugin Active: isDev=false -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; object-src 'none'; base-uri 'self'" />
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/protfolio-rk/favicon.ico" />
@@ -20,43 +18,50 @@
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://yourwebsite.com/" />
+    <meta property="og:url" content="https://rkwebforge.github.io/protfolio-rk/" />
     <meta property="og:title" content="RK Prasad - Front-End Developer" />
     <meta
       property="og:description"
-      content="Creative front-end developer specializing in React, TypeScript, and modern web technologies."
+      content="Creative front-end developer specializing in React, TypeScript, and modern web technologies. View my portfolio and get in touch."
     />
-    <meta property="og:image" content="https://yourwebsite.com/og-image.jpg" />
+    <meta property="og:image" content="https://rkwebforge.github.io/protfolio-rk/android-chrome-512x512.png" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://yourwebsite.com/" />
+    <meta property="twitter:url" content="https://rkwebforge.github.io/protfolio-rk/" />
     <meta property="twitter:title" content="RK Prasad - Front-End Developer" />
     <meta
       property="twitter:description"
-      content="Creative front-end developer specializing in React, TypeScript, and modern web technologies."
+      content="Creative front-end developer specializing in React, TypeScript, and modern web technologies. View my portfolio and get in touch."
     />
-    <meta
-      property="twitter:image"
-      content="https://yourwebsite.com/og-image.jpg"
-    />
+    <meta property="twitter:image" content="https://rkwebforge.github.io/protfolio-rk/android-chrome-512x512.png" />
 
-    <!-- PWA -->
-    <link rel="manifest" href="/protfolio-rk/manifest.json" />
-    <meta name="theme-color" content="#000000" />
+    <!-- Additional Meta Tags -->
+    <meta name="author" content="RK Prasad" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#1a1a2e" />
 
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/protfolio-rk/android-chrome-192x192.png" as="image" />
+
+    <!-- Fonts preload -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+
+    <!-- Manifest -->
+    <link rel="manifest" href="/protfolio-rk/manifest.json" />
 
     <script type="text/javascript">
       // Single Page Apps for GitHub Pages
+      // MIT License
+      // https://github.com/rafgraph/spa-github-pages
       // This script checks to see if a redirect is present in the query string,
       // converts it back into the correct url and adds it to the
       // browser's history using window.history.replaceState(...),
+      // which won't cause the browser to attempt to load the new url.
+      // When the single page app is loaded further down in this file,
+      // the correct url will be waiting in the browser's history for
+      // the single page app to route accordingly.
       (function(l) {
         if (l.search[1] === '/' ) {
           var decoded = l.search.slice(1).split('&').map(function(s) { 
@@ -68,14 +73,9 @@
         }
       }(window.location))
     </script>
-    <script type="module" crossorigin src="/protfolio-rk/assets/index-t8VDXLOw.js"></script>
-    <link rel="modulepreload" crossorigin href="/protfolio-rk/assets/vendor-libs-DnfLtPep.js">
-    <link rel="modulepreload" crossorigin href="/protfolio-rk/assets/vendor-CFsrD7R7.js">
-    <link rel="modulepreload" crossorigin href="/protfolio-rk/assets/animation-Bg6KzWOy.js">
-    <link rel="modulepreload" crossorigin href="/protfolio-rk/assets/icons-C_s-Zqpr.js">
-    <link rel="stylesheet" crossorigin href="/protfolio-rk/assets/index-D_22xVhb.css">
   </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/protfolio-rk/assets/index-5Bmeo2eb.js"></script>
   </body>
 </html>
