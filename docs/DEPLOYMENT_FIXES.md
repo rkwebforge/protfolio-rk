@@ -183,3 +183,54 @@ After deployment, verify:
 - Code splitting is maintained for optimal loading
 - Images are optimized with proper file naming
 - Proper caching headers from GitHub Pages CDN
+
+## Latest Routing Fix (June 2025)
+
+### Issue: Router Basename Configuration Problem
+
+**Problem**: The routing configuration was causing issues with path resolution on the deployed website. The application was using both a `basename` in the BrowserRouter AND full production paths that already included the basename, causing a double-basename issue.
+
+**Root Cause**:
+
+- `BrowserRouter` was configured with `basename="/protfolio-rk"`
+- Routes were using `PROD_ROUTES` which contained paths like `/protfolio-rk/about`
+- This resulted in URLs like `/protfolio-rk/protfolio-rk/about` (double basename)
+
+**Solution**:
+
+1. **Fixed Router Configuration**: Always use relative routes when using `basename`
+
+   ```tsx
+   // Before (WRONG)
+   const routes = import.meta.env.PROD ? PROD_ROUTES : ROUTES;
+   <BrowserRouter basename={basename}>
+     <Route path={routes.ABOUT} element={<AboutPage />} />
+     // This would be "/protfolio-rk/about" with basename="/protfolio-rk"
+
+   // After (CORRECT)
+   const routes = ROUTES; // Always use relative routes
+   <BrowserRouter basename={basename}>
+     <Route path={routes.ABOUT} element={<AboutPage />} />
+     // This will be "/about" with basename="/protfolio-rk"
+   ```
+
+2. **Updated Navigation**: Simplified navigation to use only relative paths
+   - Removed `getNavItems()` function that switched between dev/prod navigation
+   - Always use `NAV_ITEMS` which contains relative paths
+   - Let React Router handle the basename automatically
+
+3. **Cleaned Up Path Constants**:
+   - Removed `PROD_ROUTES` and `PROD_NAV_ITEMS` (no longer needed)
+   - Removed `getRoute()` and `getNavItems()` helper functions
+   - Simplified to use only relative paths with proper basename configuration
+
+4. **Enhanced 404.html**: Updated the redirect script for better GitHub Pages SPA support
+
+**Files Modified**:
+
+- `src/App.tsx` - Fixed router configuration
+- `src/components/Navbar.tsx` - Updated to use relative navigation
+- `src/constants/paths.ts` - Cleaned up and simplified
+- `public/404.html` - Enhanced redirect script
+
+**Key Learning**: When using React Router's `basename` prop, all routes should be relative paths. The basename is automatically prepended by React Router to all navigation and routing operations.

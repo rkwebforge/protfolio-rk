@@ -1,7 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
-import { getBasename, PROD_ROUTES, ROUTES } from "./constants/paths";
+import { getBasename, ROUTES } from "./constants/paths";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import HomePage from "./pages/HomePage";
@@ -12,8 +12,8 @@ function App() {
   // Get basename based on environment
   const basename = getBasename();
 
-  // Use production routes for production, development routes for development
-  const routes = import.meta.env.PROD ? PROD_ROUTES : ROUTES;
+  // Always use relative routes when using basename
+  const routes = ROUTES;
 
   return (
     <BrowserRouter basename={basename}>

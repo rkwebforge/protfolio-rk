@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { getNavItems, ROUTES } from "../constants/paths";
+import { NAV_ITEMS, ROUTES } from "../constants/paths";
 import {
   fadeInDown,
   navItemAnimation,
@@ -292,7 +292,7 @@ const Navbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
-  const navItems = useMemo(() => getNavItems(), []);
+  const navItems = useMemo(() => NAV_ITEMS, []);
 
   const handleScroll = useMemo(() => {
     let ticking = false;

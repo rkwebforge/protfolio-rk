@@ -5,9 +5,23 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="/protfolio-rk/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/protfolio-rk/favicon-16x16.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/protfolio-rk/favicon-32x32.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/protfolio-rk/apple-touch-icon.png" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="/protfolio-rk/favicon-16x16.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/protfolio-rk/favicon-32x32.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/protfolio-rk/apple-touch-icon.png"
+    />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RK Prasad - Front-End Developer</title>
@@ -18,23 +32,35 @@
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://rkwebforge.github.io/protfolio-rk/" />
+    <meta
+      property="og:url"
+      content="https://rkwebforge.github.io/protfolio-rk/"
+    />
     <meta property="og:title" content="RK Prasad - Front-End Developer" />
     <meta
       property="og:description"
       content="Creative front-end developer specializing in React, TypeScript, and modern web technologies. View my portfolio and get in touch."
     />
-    <meta property="og:image" content="https://rkwebforge.github.io/protfolio-rk/android-chrome-512x512.png" />
+    <meta
+      property="og:image"
+      content="https://rkwebforge.github.io/protfolio-rk/android-chrome-512x512.png"
+    />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://rkwebforge.github.io/protfolio-rk/" />
+    <meta
+      property="twitter:url"
+      content="https://rkwebforge.github.io/protfolio-rk/"
+    />
     <meta property="twitter:title" content="RK Prasad - Front-End Developer" />
     <meta
       property="twitter:description"
       content="Creative front-end developer specializing in React, TypeScript, and modern web technologies. View my portfolio and get in touch."
     />
-    <meta property="twitter:image" content="https://rkwebforge.github.io/protfolio-rk/android-chrome-512x512.png" />
+    <meta
+      property="twitter:image"
+      content="https://rkwebforge.github.io/protfolio-rk/android-chrome-512x512.png"
+    />
 
     <!-- Additional Meta Tags -->
     <meta name="author" content="RK Prasad" />
@@ -42,7 +68,11 @@
     <meta name="theme-color" content="#1a1a2e" />
 
     <!-- Preload critical resources -->
-    <link rel="preload" href="/protfolio-rk/android-chrome-192x192.png" as="image" />
+    <link
+      rel="preload"
+      href="/protfolio-rk/android-chrome-192x192.png"
+      as="image"
+    />
 
     <!-- Fonts preload -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -55,27 +85,33 @@
       // Single Page Apps for GitHub Pages
       // MIT License
       // https://github.com/rafgraph/spa-github-pages
-      // This script checks to see if a redirect is present in the query string,
-      // converts it back into the correct url and adds it to the
-      // browser's history using window.history.replaceState(...),
-      // which won't cause the browser to attempt to load the new url.
-      // When the single page app is loaded further down in this file,
-      // the correct url will be waiting in the browser's history for
-      // the single page app to route accordingly.
-      (function(l) {
-        if (l.search[1] === '/' ) {
-          var decoded = l.search.slice(1).split('&').map(function(s) { 
-            return s.replace(/~and~/g, '&')
-          }).join('?');
-          window.history.replaceState(null, null,
-              l.pathname.slice(0, -1) + decoded + l.hash
-          );
-        }
-      }(window.location))
+      // This script redirects to the main index.html with the full path
+      // encoded in the query string for single page app routing
+      var pathSegmentsToKeep = 1; // Change this value for subdirectory repos
+
+      var l = window.location;
+      l.replace(
+        l.protocol +
+          "//" +
+          l.hostname +
+          (l.port ? ":" + l.port : "") +
+          l.pathname
+            .split("/")
+            .slice(0, 1 + pathSegmentsToKeep)
+            .join("/") +
+          "/?/" +
+          l.pathname
+            .slice(1)
+            .split("/")
+            .slice(pathSegmentsToKeep)
+            .join("/")
+            .replace(/&/g, "~and~") +
+          (l.search ? "&" + l.search.slice(1).replace(/&/g, "~and~") : "") +
+          l.hash
+      );
     </script>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/protfolio-rk/assets/index-5Bmeo2eb.js"></script>
+    <!-- 404 redirect page for GitHub Pages SPA -->
   </body>
 </html>
