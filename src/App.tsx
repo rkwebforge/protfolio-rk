@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
+import { getBasename, PROD_ROUTES, ROUTES } from "./constants/paths";
 import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import HomePage from "./pages/HomePage";
@@ -8,8 +9,11 @@ import ProjectsPage from "./pages/ProjectsPage";
 import SinglePage from "./pages/SinglePage";
 
 function App() {
-  // Use basename only for production (GitHub Pages)
-  const basename = import.meta.env.PROD ? "/protfolio-rk" : "";
+  // Get basename based on environment
+  const basename = getBasename();
+
+  // Use production routes for production, development routes for development
+  const routes = import.meta.env.PROD ? PROD_ROUTES : ROUTES;
 
   return (
     <BrowserRouter basename={basename}>
@@ -17,11 +21,11 @@ function App() {
         <Navbar />
         <main>
           <Routes>
-            <Route path="/protfolio-rk" element={<HomePage />} />
-            <Route path="/protfolio-rk/about" element={<AboutPage />} />
-            <Route path="/protfolio-rk/projects" element={<ProjectsPage />} />
-            <Route path="/protfolio-rk/contact" element={<ContactPage />} />
-            <Route path="/protfolio-rk/single-page" element={<SinglePage />} />
+            <Route path={routes.HOME} element={<HomePage />} />
+            <Route path={routes.ABOUT} element={<AboutPage />} />
+            <Route path={routes.PROJECTS} element={<ProjectsPage />} />
+            <Route path={routes.CONTACT} element={<ContactPage />} />
+            <Route path={routes.SINGLE_PAGE} element={<SinglePage />} />
             {/* Catch-all route that redirects to home */}
             <Route path="*" element={<HomePage />} />
           </Routes>
