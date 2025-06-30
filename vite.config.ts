@@ -5,7 +5,7 @@ import { cspPlugin } from "./vite-plugins/csp";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   plugins: [react(), cspPlugin()],
-  base: "/protfolio-rk/", // Base path for GitHub Pages deployment
+  base: mode === "production" ? "/protfolio-rk/" : "/", // Conditional base path
   // Public directory for static assets
   publicDir: "public",
 

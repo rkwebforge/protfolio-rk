@@ -8,8 +8,11 @@ import ProjectsPage from "./pages/ProjectsPage";
 import SinglePage from "./pages/SinglePage";
 
 function App() {
+  // Use basename only for production (GitHub Pages)
+  const basename = import.meta.env.PROD ? "/protfolio-rk" : "";
+
   return (
-    <BrowserRouter basename="/protfolio-rk">
+    <BrowserRouter basename={basename}>
       <div className="min-h-screen bg-gradient-to-br from-dark-950 via-dark-900 to-dark-800 text-white">
         <Navbar />
         <main>
@@ -19,6 +22,8 @@ function App() {
             <Route path="/projects" element={<ProjectsPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/single-page" element={<SinglePage />} />
+            {/* Catch-all route that redirects to home */}
+            <Route path="*" element={<HomePage />} />
           </Routes>
         </main>
         <Footer />
