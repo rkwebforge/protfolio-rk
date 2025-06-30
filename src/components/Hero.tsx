@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { ChevronDown, Download, Github, Linkedin, Mail } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
-import dp_image from "../assets/profile_img/dp.avif"; // Adjust the path as necessary
 import { ROUTES } from "../constants/paths";
 import {
   bounceIn,
@@ -15,6 +14,9 @@ import {
   staggerContainer,
 } from "../utils/animations";
 import { addPerformanceClasses, instantTransition } from "../utils/performance";
+
+// Import the image directly
+import dpImageUrl from "../assets/profile_img/dp.avif";
 const Hero: React.FC = () => {
   const scrollToSkills = () => {
     const element = document.getElementById("skills");
@@ -138,7 +140,7 @@ const Hero: React.FC = () => {
               }}
             >
               <motion.img
-                src={dp_image}
+                src={dpImageUrl}
                 alt="Profile Picture"
                 className="h-full w-full rounded-full object-cover"
                 initial={{ scale: 1.1, opacity: 0 }}

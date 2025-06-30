@@ -1,10 +1,11 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { cspPlugin } from "./vite-plugins/csp";
+import { manifestPlugin } from "./vite-plugins/manifest";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), cspPlugin()],
+  plugins: [react(), cspPlugin(), manifestPlugin()],
   base: mode === "production" ? "/protfolio-rk/" : "/", // Conditional base path
   // Public directory for static assets
   publicDir: "public",
@@ -60,12 +61,21 @@ export default defineConfig(({ mode }) => ({
         },
         chunkFileNames: "assets/[name]-[hash].js",
         entryFileNames: "assets/[name]-[hash].js",
-        assetFileNames: "assets/[name]-[hash].[ext]",
+        assetFileNames: (assetInfo) => {
+          // Keep images in their original structure
+          if (
+            assetInfo.name &&
+            /\.(png|jpe?g|gif|svg|webp|avif)$/.test(assetInfo.name)
+          ) {
+            return "assets/[name]-[hash].[ext]";
+          }
+          return "assets/[name]-[hash].[ext]";
+        },
       },
     },
     // Chunk size warning limit
     chunkSizeWarningLimit: 1000,
-    // Increase max file count
-    assetsInlineLimit: 4096,
+    // Increase max file count and inline limit for better asset handling
+    assetsInlineLimit: 0, // Don't inline any assets to avoid CSP issues
   },
 }));

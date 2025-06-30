@@ -1,10 +1,10 @@
-import type { Plugin } from 'vite';
+import type { Plugin } from "vite";
 
 export function cspPlugin(): Plugin {
   return {
-    name: 'csp-plugin',
+    name: "csp-plugin",
     transformIndexHtml: {
-      order: 'pre',
+      order: "pre",
       handler(html: string, ctx) {
         // Check if we're in development mode
         const isDev = ctx.server !== undefined;
@@ -19,19 +19,20 @@ export function cspPlugin(): Plugin {
           "connect-src 'self' ws: wss: http: https:", // Allow all connections for dev
           "object-src 'none'",
           "base-uri 'self'",
-        ].join('; ');
+        ].join("; ");
 
-        // Production CSP - more restrictive
+        // Production CSP - allow inline scripts for GitHub Pages compatibility
         const prodCSP = [
           "default-src 'self'",
-          "script-src 'self'", // No unsafe-eval in production
+          "script-src 'self' 'unsafe-inline'", // GitHub Pages needs inline scripts
           "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
           "font-src 'self' https://fonts.gstatic.com",
           "img-src 'self' data: https:",
-          "connect-src 'self'",
+          "connect-src 'self' https:",
           "object-src 'none'",
           "base-uri 'self'",
-        ].join('; ');
+          "form-action 'self'",
+        ].join("; ");
 
         const csp = isDev ? devCSP : prodCSP;
 
