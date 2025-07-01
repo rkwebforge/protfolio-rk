@@ -12,16 +12,16 @@
 
   body {
     font-family:
-      'Inter',
+      "Inter",
       system-ui,
       -apple-system,
       BlinkMacSystemFont,
-      'Segoe UI',
+      "Segoe UI",
       Roboto,
-      'Helvetica Neue',
+      "Helvetica Neue",
       Arial,
       sans-serif;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 button:focus,
@@ -284,7 +284,6 @@ a:focus {
 @media (max-width: 768px) {
   .featured-projects-section {
     min-height: 80vh;
-    padding: 2rem 1rem;
   }
 
   .featured-projects-section .grid {
@@ -299,7 +298,6 @@ a:focus {
 @media (max-width: 480px) {
   .featured-projects-section {
     min-height: 70vh;
-    padding: 1rem 0.5rem;
   }
 
   .featured-projects-section .text-3xl {
