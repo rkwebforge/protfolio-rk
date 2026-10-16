@@ -112,24 +112,14 @@ style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
 
 ## Deployment Process
 
-### Automated Deployment
+Deployment runs automatically through GitHub Actions
+(`.github/workflows/deploy.yml`) on every push to `main`: it builds the
+project and publishes `dist` to GitHub Pages.
 
-Use the provided deployment script:
+Repository settings this relies on:
 
-```bash
-./deploy.sh
-```
-
-### Manual Deployment
-
-```bash
-# Build the project
-npm run build
-
-# Deploy to GitHub Pages
-npm install --save-dev gh-pages
-npx gh-pages -d dist
-```
+- **Settings → Pages → Source**: GitHub Actions
+- **Settings → Environments → github-pages**: `main` allowed to deploy
 
 ## Verification Steps
 

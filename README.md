@@ -134,6 +134,11 @@ Update your information in:
 
 ## 🚀 Deployment
 
+### GitHub Pages
+
+The live site deploys automatically via GitHub Actions on every push to
+`main` (see `.github/workflows/deploy.yml`).
+
 ### Vercel
 
 1. Push your code to GitHub
