@@ -1,6 +1,6 @@
-import { motion } from 'framer-motion';
-import React from 'react';
-import { pageTransitions, pageVariants } from '../utils/animations';
+import { motion } from "framer-motion";
+import React from "react";
+import { pageTransitions, pageVariants } from "../utils/animations";
 
 interface AnimatedPageProps {
   children: React.ReactNode;
@@ -9,13 +9,13 @@ interface AnimatedPageProps {
 
 const AnimatedPage: React.FC<AnimatedPageProps> = ({
   children,
-  className = '',
+  className = "",
 }) => {
   return (
     <motion.div
-      initial='initial'
-      animate='in'
-      exit='out'
+      initial="initial"
+      animate="in"
+      exit="out"
       variants={pageVariants}
       transition={pageTransitions}
       className={className}

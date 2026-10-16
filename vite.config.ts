@@ -1,3 +1,4 @@
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import { cspPlugin } from "./vite-plugins/csp";
@@ -5,7 +6,7 @@ import { manifestPlugin } from "./vite-plugins/manifest";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), cspPlugin(), manifestPlugin()],
+  plugins: [react(), tailwindcss(), cspPlugin(), manifestPlugin()],
   base: mode === "production" ? "/protfolio-rk/" : "/", // Conditional base path
   // Public directory for static assets
   publicDir: "public",
@@ -35,7 +36,6 @@ export default defineConfig(({ mode }) => ({
   // Build configuration
   build: {
     target: "esnext",
-    minify: "esbuild",
     sourcemap: mode === "development",
     rollupOptions: {
       output: {

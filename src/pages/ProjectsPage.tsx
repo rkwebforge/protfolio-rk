@@ -1,7 +1,12 @@
-import Projects from '../components/Projects';
+import Projects from "../components/Projects";
 
 function ProjectsPage() {
-  return <Projects />;
+  // Extra room below the fixed navbar; SinglePage stacks sections without it
+  return (
+    <div className="pt-12">
+      <Projects />
+    </div>
+  );
 }
 
 export default ProjectsPage;

@@ -1,29 +1,22 @@
-import { motion } from 'framer-motion';
-import debounce from 'lodash.debounce';
+import debounce from "lodash.debounce";
 import {
   Calendar,
+  Check,
   Clock,
-  Github,
-  Linkedin,
+  Copy,
+  Loader2,
   Mail,
   MapPin,
   MessageCircle,
-  Phone,
   Send,
-  Twitter,
-} from 'lucide-react';
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
-import {
-  buttonHover,
-  fadeInLeft,
-  fadeInRight,
-  fadeInUp,
-  scaleIn,
-  staggerContainer,
-} from '../utils/animations';
-import CustomSelect from './CustomSelect';
-import Notification, { NotificationType } from './Notification';
+} from "lucide-react";
+import { Github, Linkedin } from "./BrandIcons";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { Controller, SubmitHandler, useForm, useWatch } from "react-hook-form";
+import CustomSelect from "./CustomSelect";
+import Notification, { NotificationType } from "./Notification";
+import { NeonText } from "./Neon";
+import { EMAIL, EMAIL_HREF, LOCATION } from "../constants/contact";
 
 interface FormData {
   name: string;
@@ -34,6 +27,136 @@ interface FormData {
   timeline: string;
 }
 
+// The form has no backend yet (submit is simulated), so it's hidden.
+// Set to true once a real submission endpoint is wired up.
+const SHOW_CONTACT_FORM = false;
+
+const CONTACT = {
+  email: EMAIL,
+  emailHref: EMAIL_HREF,
+  location: LOCATION,
+};
+
+interface SocialLink {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  url: string;
+  label: string;
+}
+
+const primaryButton =
+  "inline-flex items-center justify-center gap-2 rounded-md bg-accent px-5 py-3 font-display text-sm font-medium text-ink transition-colors hover:bg-accent-strong";
+const secondaryButton =
+  "inline-flex items-center justify-center gap-2 rounded-md border border-rule px-5 py-3 font-display text-sm font-medium text-fg transition-colors hover:border-accent hover:text-accent";
+const iconLink =
+  "flex h-11 w-11 items-center justify-center rounded-md border border-rule text-muted transition-colors hover:border-accent hover:text-accent";
+const inputBase =
+  "w-full rounded-md border bg-raised px-3 py-2.5 text-fg placeholder:text-muted transition-colors focus:border-accent";
+const fieldLabel = "mb-2 block text-sm font-medium text-fg";
+
+/** Email-first contact panel, shown while the contact form is disabled. */
+const ContactPanel: React.FC<{ socialLinks: SocialLink[] }> = memo(
+  ({ socialLinks }) => {
+    const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+      if (!copied) return;
+      const timer = setTimeout(() => setCopied(false), 2000);
+      return () => clearTimeout(timer);
+    }, [copied]);
+
+    const copyEmail = useCallback(async () => {
+      try {
+        await navigator.clipboard.writeText(CONTACT.email);
+        setCopied(true);
+      } catch {
+        // Clipboard can be blocked (e.g. insecure context); fall back to mail app
+        window.location.href = CONTACT.emailHref;
+      }
+    }, []);
+
+    return (
+      <div className="max-w-3xl">
+        <div className="rounded-lg border border-rule bg-raised p-5 sm:p-10">
+          <p className="text-base text-muted sm:text-lg">
+            The quickest way to reach me is email.
+          </p>
+          <a
+            href={CONTACT.emailHref}
+            className="mt-2 inline-block rounded-md font-display text-2xl font-medium break-all text-white transition-colors hover:text-accent sm:text-3xl sm:break-normal"
+          >
+            {CONTACT.email}
+          </a>
+
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <a
+              href={CONTACT.emailHref}
+              className={`${primaryButton} w-full sm:w-auto`}
+            >
+              <Mail size={18} aria-hidden="true" />
+              Send an email
+            </a>
+            <button
+              type="button"
+              onClick={copyEmail}
+              className={`${secondaryButton} w-full sm:w-auto`}
+            >
+              {copied ? (
+                <Check
+                  size={18}
+                  className="text-green-400"
+                  aria-hidden="true"
+                />
+              ) : (
+                <Copy size={18} aria-hidden="true" />
+              )}
+              <span aria-live="polite">
+                {copied ? "Copied" : "Copy address"}
+              </span>
+            </button>
+          </div>
+          <p className="mt-4 flex items-center gap-2 text-sm text-muted">
+            <Clock size={16} aria-hidden="true" />I usually reply within 24
+            hours.
+          </p>
+
+          <div className="mt-8 flex flex-col gap-6 border-t border-rule pt-8 sm:flex-row sm:items-end sm:justify-between">
+            <ul className="space-y-3 text-fg">
+              <li className="flex items-start gap-3">
+                <MapPin
+                  size={18}
+                  className="mt-0.5 shrink-0 text-muted"
+                  aria-hidden="true"
+                />
+                <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2">
+                  <span>{CONTACT.location}</span>
+                  <span className="text-sm text-muted">
+                    open to remote work
+                  </span>
+                </div>
+              </li>
+            </ul>
+
+            <div className="flex gap-3">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  className={iconLink}
+                >
+                  <social.icon size={20} />
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  },
+);
+
 const Contact: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notification, setNotification] = useState<{
@@ -43,9 +166,9 @@ const Contact: React.FC = () => {
     message?: string;
   }>({
     isVisible: false,
-    type: 'success',
-    title: '',
-    message: '',
+    type: "success",
+    title: "",
+    message: "",
   });
   const [debouncedSubjectCount, setDebouncedSubjectCount] = useState(0);
   const [debouncedMessageCount, setDebouncedMessageCount] = useState(0);
@@ -54,56 +177,55 @@ const Contact: React.FC = () => {
     control,
     handleSubmit,
     reset,
-    watch,
     formState: { errors, isValid },
   } = useForm<FormData>({
-    mode: 'onChange',
+    mode: "onChange",
     defaultValues: {
-      name: '',
-      email: '',
-      subject: '',
-      message: '',
-      budget: '',
-      timeline: '',
+      name: "",
+      email: "",
+      subject: "",
+      message: "",
+      budget: "",
+      timeline: "",
     },
   });
 
   const onSubmit: SubmitHandler<FormData> = useCallback(
-    async data => {
+    async (data) => {
       setIsSubmitting(true);
 
       // Hide any existing notifications
-      setNotification(prev => ({ ...prev, isVisible: false }));
+      setNotification((prev) => ({ ...prev, isVisible: false }));
 
       try {
         // Simulate form submission
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        console.log('Form submitted:', data);
+        console.log("Form submitted:", data);
 
         // Reset form and show success notification
         reset();
         setNotification({
           isVisible: true,
-          type: 'success',
-          title: 'Message Sent Successfully! 🎉',
+          type: "success",
+          title: "Message Sent Successfully!",
           message:
             "Thank you for reaching out! I'll review your message and get back to you within 24 hours.",
         });
       } catch (error) {
-        console.error('Form submission error:', error);
+        console.error("Form submission error:", error);
         setNotification({
           isVisible: true,
-          type: 'error',
-          title: 'Oops! Something went wrong 😔',
+          type: "error",
+          title: "Oops! Something went wrong",
           message:
-            'Unable to send your message right now. Please try again later or reach out to me directly via email.',
+            "Unable to send your message right now. Please try again later or reach out to me directly via email.",
         });
       } finally {
         setIsSubmitting(false);
       }
     },
-    [reset, setNotification]
+    [reset, setNotification],
   );
 
   // Optimized debounced functions with different delays for better UX
@@ -112,7 +234,7 @@ const Contact: React.FC = () => {
       debounce((value: string) => {
         setDebouncedSubjectCount(value.length);
       }, 200), // Shorter delay for subject (shorter field)
-    []
+    [],
   );
 
   const debouncedMessageUpdate = useMemo(
@@ -120,98 +242,89 @@ const Contact: React.FC = () => {
       debounce((value: string) => {
         setDebouncedMessageCount(value.length);
       }, 300), // Longer delay for message (longer field)
-    []
+    [],
   );
 
   // Function to close notification
   const closeNotification = useCallback(() => {
-    setNotification(prev => ({ ...prev, isVisible: false }));
+    setNotification((prev) => ({ ...prev, isVisible: false }));
   }, []);
 
   // Watch form values for debounced updates
-  useEffect(() => {
-    const subscription = watch(value => {
-      if (value.subject !== undefined) {
-        debouncedSubjectUpdate(value.subject || '');
-      }
-      if (value.message !== undefined) {
-        debouncedMessageUpdate(value.message || '');
-      }
-    });
+  const subject = useWatch({ control, name: "subject" });
+  const message = useWatch({ control, name: "message" });
 
+  useEffect(() => {
+    debouncedSubjectUpdate(subject || "");
+  }, [subject, debouncedSubjectUpdate]);
+
+  useEffect(() => {
+    debouncedMessageUpdate(message || "");
+  }, [message, debouncedMessageUpdate]);
+
+  useEffect(() => {
     return () => {
-      subscription.unsubscribe();
       debouncedSubjectUpdate.cancel();
       debouncedMessageUpdate.cancel();
     };
-  }, [watch, debouncedSubjectUpdate, debouncedMessageUpdate]);
+  }, [debouncedSubjectUpdate, debouncedMessageUpdate]);
 
   const contactInfo = useMemo(
     () => [
       {
         icon: Mail,
-        title: 'Email',
-        value: 'rk.prasad@email.com',
-        link: 'mailto:rk.prasad@email.com',
-        description: 'Send me an email anytime',
-      },
-      {
-        icon: Phone,
-        title: 'Phone',
-        value: '+91 98765 43210',
-        link: 'tel:+919876543210',
-        description: 'Call me for urgent matters',
+        title: "Email",
+        value: CONTACT.email,
+        link: CONTACT.emailHref,
+        description: "Send me an email anytime",
       },
       {
         icon: MapPin,
-        title: 'Location',
-        value: 'Bangalore, India',
-        link: '#',
-        description: 'Available for remote work',
+        title: "Location",
+        value: CONTACT.location,
+        link: "#",
+        description: "Available for remote work",
       },
     ],
-    []
+    [],
   );
 
   const socialLinks = useMemo(
     () => [
-      { icon: Github, url: '#', label: 'GitHub', color: 'hover:text-gray-300' },
+      {
+        icon: Github,
+        url: "https://github.com/rkwebforge",
+        label: "GitHub",
+      },
       {
         icon: Linkedin,
-        url: '#',
-        label: 'LinkedIn',
-        color: 'hover:text-blue-400',
-      },
-      {
-        icon: Twitter,
-        url: '#',
-        label: 'Twitter',
-        color: 'hover:text-cyan-400',
+        url: "https://www.linkedin.com/in/krishnaprasad-r-2261371a3",
+        label: "LinkedIn",
       },
     ],
-    []
+    [],
   );
 
   const budgetOptions = useMemo(
     () => [
-      { value: 'under-5k', label: 'Under $5,000' },
-      { value: '5k-10k', label: '$5,000 - $10,000' },
-      { value: '10k-25k', label: '$10,000 - $25,000' },
-      { value: '25k-50k', label: '$25,000 - $50,000' },
-      { value: '50k-plus', label: '$50,000+' },
+      { value: "under-5k", label: "Under $5,000" },
+      { value: "5k-10k", label: "$5,000 - $10,000" },
+      { value: "10k-25k", label: "$10,000 - $25,000" },
+      { value: "25k-50k", label: "$25,000 - $50,000" },
+      { value: "50k-plus", label: "$50,000+" },
     ],
-    []
+    [],
   );
 
   const timelineOptions = useMemo(
     () => [
-      { value: 'asap', label: 'ASAP' },
-      { value: '1-2-weeks', label: '1-2 weeks' },
-      { value: '1-month', label: '1 month' },
-      { value: '2-3-months', label: '2-3 months' },
-      { value: '3-plus-months', label: '3+ months' },
+      { value: "asap", label: "ASAP" },
+      { value: "1-2-weeks", label: "1-2 weeks" },
+      { value: "1-month", label: "1 month" },
+      { value: "2-3-months", label: "2-3 months" },
+      { value: "3-plus-months", label: "3+ months" },
     ],
-    []
+    [],
   );
 
   // Character count calculations using debounced values for display
@@ -221,470 +334,332 @@ const Contact: React.FC = () => {
   // Form validation using react-hook-form isValid
   const isFormValid = isValid;
 
-  // Memoized animation variants to prevent recreation on each render
-  const titleAnimation = useMemo(
-    () => ({
-      initial: { opacity: 0, y: 50 },
-      animate: { opacity: 1, y: 0 },
-      transition: { duration: 0.8, ease: [0.6, -0.05, 0.01, 0.99] as const },
-      whileHover: {
-        scale: 1.02,
-        textShadow: '0 0 20px rgba(147, 51, 234, 0.5)',
-      },
-    }),
-    []
-  );
-
-  const dividerAnimation = useMemo(
-    () => ({
-      initial: { scaleX: 0 },
-      animate: { scaleX: 1 },
-      transition: {
-        duration: 1,
-        ease: [0.6, -0.05, 0.01, 0.99] as const,
-        delay: 0.3,
-      },
-      whileHover: {
-        scaleY: 3,
-        boxShadow: '0 0 20px rgba(147, 51, 234, 0.6)',
-      },
-    }),
-    []
-  );
-
-  const descriptionAnimation = useMemo(
-    () => ({
-      initial: { opacity: 0, y: 30 },
-      animate: { opacity: 1, y: 0 },
-      transition: { duration: 0.8, delay: 0.5 },
-      whileHover: {
-        scale: 1.02,
-        color: '#e5e7eb',
-      },
-    }),
-    []
-  );
-
   return (
-    <motion.section
-      className='min-h-screen bg-gradient-to-br from-dark-900/30 via-dark-800/50 to-dark-900/30 px-4 pb-16 pt-24'
-      variants={staggerContainer}
-      initial='initial'
-      whileInView='animate'
-      viewport={{ once: true, amount: 0.3 }}
-    >
-      <div className='mx-auto max-w-7xl'>
-        <motion.div
-          className='mb-12 text-center sm:mb-16'
-          variants={fadeInUp}
-          initial='initial'
-          whileInView='animate'
-          viewport={{ once: true, amount: 0.3 }}
-        >
-          <motion.h1
-            className='mb-4 text-3xl font-bold text-white sm:mb-6 sm:text-4xl md:text-5xl'
-            initial={titleAnimation.initial}
-            whileInView={titleAnimation.animate}
-            transition={titleAnimation.transition}
-            whileHover={titleAnimation.whileHover}
-            viewport={{ once: true }}
-          >
-            Get In{' '}
-            <motion.span
-              className='bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent'
-              animate={{
-                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: 'linear',
-              }}
-              style={{ backgroundSize: '200% 200%' }}
-            >
-              Touch
-            </motion.span>
-          </motion.h1>
-          <motion.div
-            className='mx-auto mb-4 h-1 w-16 rounded-full bg-gradient-to-r from-purple-400 to-cyan-400 sm:mb-6 sm:w-24'
-            initial={dividerAnimation.initial}
-            whileInView={dividerAnimation.animate}
-            transition={dividerAnimation.transition}
-            whileHover={dividerAnimation.whileHover}
-            viewport={{ once: true }}
-          />
-          <motion.p
-            className='mx-auto max-w-3xl px-2 text-lg leading-relaxed text-gray-300 sm:px-4 sm:text-xl'
-            initial={descriptionAnimation.initial}
-            whileInView={descriptionAnimation.animate}
-            transition={descriptionAnimation.transition}
-            whileHover={descriptionAnimation.whileHover}
-            viewport={{ once: true }}
-          >
+    <section className="min-h-screen">
+      <div className="mx-auto max-w-6xl px-4 pt-24 pb-24 sm:px-6">
+        <div className="mb-12 sm:mb-16">
+          <h1 className="text-3xl font-semibold text-white sm:text-4xl">
+            <NeonText>Get In Touch</NeonText>
+          </h1>
+          <p className="mt-3 max-w-2xl text-lg text-muted">
             I'm always excited to discuss new opportunities, interesting
             projects, or just have a great conversation about technology and
             innovation.
-          </motion.p>
-        </motion.div>
-        <div className='grid gap-12 lg:grid-cols-5'>
-          {/* Contact Information */}
-          <motion.div className='space-y-8 lg:col-span-2' variants={fadeInLeft}>
-            <motion.div variants={fadeInUp}>
-              <h2 className='mb-6 text-3xl font-semibold text-white'>
-                Let's Connect
-              </h2>
-              <p className='mb-8 text-lg leading-relaxed text-gray-300'>
-                Whether you have a project in mind, want to collaborate, or just
-                want to say hello, I'd love to hear from you. Let's create
-                something amazing together!
-              </p>
-            </motion.div>
-
-            <motion.div className='space-y-6' variants={staggerContainer}>
-              {contactInfo.map((info, index) => (
-                <motion.a
-                  key={index}
-                  href={info.link}
-                  className='group flex transform items-start space-x-4 rounded-2xl border border-dark-600 bg-dark-800/50 p-6 backdrop-blur-sm transition-all duration-300 hover:border-accent-500/50 hover:bg-gradient-to-br hover:from-primary-900/20 hover:to-accent-900/20'
-                  variants={scaleIn}
-                  whileHover={{ y: -5, scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <motion.div
-                    className='flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-cyan-500 shadow-lg transition-transform duration-300 group-hover:scale-110'
-                    whileHover={{ rotate: 360 }}
-                    transition={{ duration: 0.6 }}
-                  >
-                    <info.icon size={24} className='text-white' />
-                  </motion.div>
-                  <div className='min-w-0 flex-1'>
-                    <h3 className='mb-1 truncate text-lg font-semibold text-white'>
-                      {info.title}
-                    </h3>
-                    <p className='mb-1 truncate font-medium text-purple-400'>
-                      {info.value}
-                    </p>
-                    <p className='line-clamp-2 text-sm text-gray-400'>
-                      {info.description}
-                    </p>
-                  </div>
-                </motion.a>
-              ))}
-            </motion.div>
-
-            <motion.div className='pt-8' variants={fadeInUp}>
-              <h3 className='mb-6 text-xl font-semibold text-white'>
-                Follow Me
-              </h3>
-              <div className='flex space-x-4'>
-                {socialLinks.map((social, index) => (
-                  <motion.a
-                    key={index}
-                    href={social.url}
-                    className={`group flex h-14 w-14 transform items-center justify-center rounded-xl border border-dark-600 bg-dark-800/50 transition-all duration-300 ${social.color}`}
-                    aria-label={social.label}
-                    initial={{ opacity: 0, scale: 0.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ scale: 1.2, rotate: 15 }}
-                    whileTap={{ scale: 0.9 }}
-                  >
-                    <social.icon
-                      size={24}
-                      className='text-gray-300 group-hover:text-current'
-                    />
-                  </motion.a>
-                ))}
+          </p>
+        </div>
+        {SHOW_CONTACT_FORM ? (
+          <div className="grid gap-12 lg:grid-cols-5">
+            {/* Contact Information */}
+            <div className="space-y-8 lg:col-span-2">
+              <div>
+                <h2 className="mb-4 text-2xl font-semibold text-white">
+                  <NeonText>Let's Connect</NeonText>
+                </h2>
+                <p className="text-lg leading-relaxed text-fg">
+                  Whether you have a project in mind, want to collaborate, or
+                  just want to say hello, I'd love to hear from you. Let's
+                  create something amazing together!
+                </p>
               </div>
-            </motion.div>
 
-            <motion.div
-              className='rounded-2xl border border-slate-700 bg-gradient-to-br from-purple-600/10 to-cyan-600/10 p-6'
-              variants={scaleIn}
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className='mb-4 flex items-center space-x-3'>
-                <MessageCircle size={24} className='text-purple-400' />
-                <h3 className='text-lg font-semibold text-white'>
-                  Quick Response
-                </h3>
-              </div>
-              <p className='text-sm leading-relaxed text-gray-300'>
-                I typically respond to emails within 24 hours. For urgent
-                matters, feel free to call me directly.
-              </p>
-            </motion.div>
-          </motion.div>
-
-          {/* Contact Form */}
-          <motion.div className='lg:col-span-3' variants={fadeInRight}>
-            <motion.form
-              onSubmit={handleSubmit(onSubmit)}
-              className='space-y-6'
-              variants={staggerContainer}
-            >
-              <motion.div
-                className='grid gap-6 md:grid-cols-2'
-                variants={fadeInUp}
-              >
-                <motion.div variants={fadeInUp}>
-                  <label
-                    htmlFor='name'
-                    className='mb-2 block text-sm font-medium text-gray-300'
-                  >
-                    Full Name *
-                  </label>
-                  <Controller
-                    name='name'
-                    control={control}
-                    rules={{
-                      required: 'Full name is required',
-                      minLength: {
-                        value: 2,
-                        message: 'Name must be at least 2 characters',
-                      },
-                      maxLength: {
-                        value: 50,
-                        message: 'Name must be less than 50 characters',
-                      },
-                    }}
-                    render={({ field }) => (
-                      <motion.input
-                        {...field}
-                        type='text'
-                        id='name'
-                        className={`w-full rounded-xl border ${
-                          errors.name ? 'border-red-500' : 'border-dark-600'
-                        } bg-dark-800/50 px-4 py-4 text-white placeholder-gray-400 transition-all duration-300 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500`}
-                        placeholder='Your full name'
-                        whileFocus={{ scale: 1.02 }}
+              <ul className="divide-y divide-rule border-y border-rule">
+                {contactInfo.map((info, index) => (
+                  <li key={index}>
+                    <a
+                      href={info.link}
+                      className="group flex items-start gap-4 py-4 transition-colors"
+                    >
+                      <info.icon
+                        size={20}
+                        className="mt-0.5 shrink-0 text-muted transition-colors group-hover:text-accent"
                       />
+                      <div className="min-w-0 flex-1">
+                        <h3 className="mb-1 truncate text-base font-semibold text-white">
+                          {info.title}
+                        </h3>
+                        <p className="mb-1 wrap-anywhere text-fg transition-colors group-hover:text-accent">
+                          {info.value}
+                        </p>
+                        <p className="line-clamp-2 text-sm text-muted">
+                          {info.description}
+                        </p>
+                      </div>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
+              <div>
+                <h3 className="mb-4 text-lg font-semibold text-white">
+                  Follow Me
+                </h3>
+                <div className="flex gap-3">
+                  {socialLinks.map((social, index) => (
+                    <a
+                      key={index}
+                      href={social.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={iconLink}
+                      aria-label={social.label}
+                    >
+                      <social.icon size={20} />
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-rule bg-raised p-6">
+                <div className="mb-3 flex items-center gap-3">
+                  <MessageCircle size={20} className="text-muted" />
+                  <h3 className="text-lg font-semibold text-white">
+                    Quick Response
+                  </h3>
+                </div>
+                <p className="text-sm leading-relaxed text-fg">
+                  I typically respond to emails within 24 hours. For urgent
+                  matters, feel free to call me directly.
+                </p>
+              </div>
+            </div>
+
+            {/* Contact Form */}
+            <div className="lg:col-span-3">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <label htmlFor="name" className={fieldLabel}>
+                      Full Name *
+                    </label>
+                    <Controller
+                      name="name"
+                      control={control}
+                      rules={{
+                        required: "Full name is required",
+                        minLength: {
+                          value: 2,
+                          message: "Name must be at least 2 characters",
+                        },
+                        maxLength: {
+                          value: 50,
+                          message: "Name must be less than 50 characters",
+                        },
+                      }}
+                      render={({ field }) => (
+                        <input
+                          {...field}
+                          type="text"
+                          id="name"
+                          className={`${inputBase} ${
+                            errors.name ? "border-red-400" : "border-rule"
+                          }`}
+                          placeholder="Your full name"
+                        />
+                      )}
+                    />
+                    {errors.name && (
+                      <p className="mt-1 text-sm text-red-400">
+                        {errors.name.message}
+                      </p>
                     )}
-                  />
-                  {errors.name && (
-                    <p className='mt-1 text-sm text-red-400'>
-                      {errors.name.message}
-                    </p>
-                  )}
-                </motion.div>
-                <motion.div variants={fadeInUp}>
-                  <label
-                    htmlFor='email'
-                    className='mb-2 block text-sm font-medium text-gray-300'
-                  >
-                    Email Address *
+                  </div>
+                  <div>
+                    <label htmlFor="email" className={fieldLabel}>
+                      Email Address *
+                    </label>
+                    <Controller
+                      name="email"
+                      control={control}
+                      rules={{
+                        required: "Email is required",
+                        pattern: {
+                          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                          message: "Invalid email address",
+                        },
+                        maxLength: {
+                          value: 100,
+                          message: "Email must be less than 100 characters",
+                        },
+                      }}
+                      render={({ field }) => (
+                        <input
+                          {...field}
+                          type="email"
+                          id="email"
+                          className={`${inputBase} ${
+                            errors.email ? "border-red-400" : "border-rule"
+                          }`}
+                          placeholder="your.email@example.com"
+                        />
+                      )}
+                    />
+                    {errors.email && (
+                      <p className="mt-1 text-sm text-red-400">
+                        {errors.email.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="subject" className={fieldLabel}>
+                    Subject *
                   </label>
                   <Controller
-                    name='email'
+                    name="subject"
                     control={control}
                     rules={{
-                      required: 'Email is required',
-                      pattern: {
-                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                        message: 'Invalid email address',
+                      required: "Subject is required",
+                      minLength: {
+                        value: 3,
+                        message: "Subject must be at least 3 characters",
                       },
                       maxLength: {
                         value: 100,
-                        message: 'Email must be less than 100 characters',
+                        message: "Subject must be less than 100 characters",
                       },
                     }}
                     render={({ field }) => (
-                      <motion.input
+                      <input
                         {...field}
-                        type='email'
-                        id='email'
-                        className={`w-full rounded-xl border ${
-                          errors.email ? 'border-red-500' : 'border-dark-600'
-                        } bg-dark-800/50 px-4 py-4 text-white placeholder-gray-400 transition-all duration-300 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500`}
-                        placeholder='your.email@example.com'
-                        whileFocus={{ scale: 1.02 }}
+                        type="text"
+                        id="subject"
+                        className={`${inputBase} ${
+                          errors.subject ? "border-red-400" : "border-rule"
+                        }`}
+                        placeholder="What's this about?"
                       />
                     )}
                   />
-                  {errors.email && (
-                    <p className='mt-1 text-sm text-red-400'>
-                      {errors.email.message}
+                  {errors.subject && (
+                    <p className="mt-1 text-sm text-red-400">
+                      {errors.subject.message}
                     </p>
                   )}
-                </motion.div>
-              </motion.div>
-
-              <motion.div variants={fadeInUp}>
-                <label
-                  htmlFor='subject'
-                  className='mb-2 block text-sm font-medium text-gray-300'
-                >
-                  Subject *
-                </label>
-                <Controller
-                  name='subject'
-                  control={control}
-                  rules={{
-                    required: 'Subject is required',
-                    minLength: {
-                      value: 3,
-                      message: 'Subject must be at least 3 characters',
-                    },
-                    maxLength: {
-                      value: 100,
-                      message: 'Subject must be less than 100 characters',
-                    },
-                  }}
-                  render={({ field }) => (
-                    <motion.input
-                      {...field}
-                      type='text'
-                      id='subject'
-                      className={`w-full rounded-xl border ${
-                        errors.subject ? 'border-red-500' : 'border-dark-600'
-                      } bg-dark-800/50 px-4 py-4 text-white placeholder-gray-400 transition-all duration-300 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500`}
-                      placeholder="What's this about?"
-                      whileFocus={{ scale: 1.02 }}
-                    />
-                  )}
-                />
-                {errors.subject && (
-                  <p className='mt-1 text-sm text-red-400'>
-                    {errors.subject.message}
-                  </p>
-                )}
-                <div className='mt-1 text-xs text-gray-400'>
-                  {subjectCharCount}
+                  <div className="mt-1 text-xs text-muted">
+                    {subjectCharCount}
+                  </div>
                 </div>
-              </motion.div>
 
-              <motion.div
-                className='grid gap-6 md:grid-cols-2'
-                variants={fadeInUp}
-              >
-                <motion.div variants={fadeInUp}>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div>
+                    <Controller
+                      name="budget"
+                      control={control}
+                      render={({ field }) => (
+                        <CustomSelect
+                          label="Project Budget"
+                          icon={<Calendar size={16} />}
+                          options={budgetOptions}
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Select budget range"
+                          maxDisplayLength={20}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      name="timeline"
+                      control={control}
+                      render={({ field }) => (
+                        <CustomSelect
+                          label="Timeline"
+                          icon={<Clock size={16} />}
+                          options={timelineOptions}
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Select timeline"
+                          maxDisplayLength={20}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="message" className={fieldLabel}>
+                    Message *
+                  </label>
                   <Controller
-                    name='budget'
+                    name="message"
                     control={control}
+                    rules={{
+                      required: "Message is required",
+                      minLength: {
+                        value: 10,
+                        message: "Message must be at least 10 characters",
+                      },
+                      maxLength: {
+                        value: 1000,
+                        message: "Message must be less than 1000 characters",
+                      },
+                    }}
                     render={({ field }) => (
-                      <CustomSelect
-                        label='Project Budget'
-                        icon={<Calendar size={16} />}
-                        options={budgetOptions}
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder='Select budget range'
-                        maxDisplayLength={20}
+                      <textarea
+                        {...field}
+                        id="message"
+                        rows={6}
+                        className={`${inputBase} resize-none ${
+                          errors.message ? "border-red-400" : "border-rule"
+                        }`}
+                        placeholder="Tell me about your project, goals, and how I can help you achieve them..."
                       />
                     )}
                   />
-                </motion.div>
-                <motion.div variants={fadeInUp}>
-                  <Controller
-                    name='timeline'
-                    control={control}
-                    render={({ field }) => (
-                      <CustomSelect
-                        label='Timeline'
-                        icon={<Clock size={16} />}
-                        options={timelineOptions}
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder='Select timeline'
-                        maxDisplayLength={20}
-                      />
-                    )}
-                  />
-                </motion.div>
-              </motion.div>
-
-              <motion.div variants={fadeInUp}>
-                <label
-                  htmlFor='message'
-                  className='mb-2 block text-sm font-medium text-gray-300'
-                >
-                  Message *
-                </label>
-                <Controller
-                  name='message'
-                  control={control}
-                  rules={{
-                    required: 'Message is required',
-                    minLength: {
-                      value: 10,
-                      message: 'Message must be at least 10 characters',
-                    },
-                    maxLength: {
-                      value: 1000,
-                      message: 'Message must be less than 1000 characters',
-                    },
-                  }}
-                  render={({ field }) => (
-                    <motion.textarea
-                      {...field}
-                      id='message'
-                      rows={6}
-                      className={`w-full resize-none rounded-xl border ${
-                        errors.message ? 'border-red-500' : 'border-dark-600'
-                      } bg-dark-800/50 px-4 py-4 text-white placeholder-gray-400 transition-all duration-300 focus:border-accent-500 focus:outline-none focus:ring-2 focus:ring-accent-500`}
-                      placeholder='Tell me about your project, goals, and how I can help you achieve them...'
-                      whileFocus={{ scale: 1.02 }}
-                    />
+                  {errors.message && (
+                    <p className="mt-1 text-sm text-red-400">
+                      {errors.message.message}
+                    </p>
                   )}
-                />
-                {errors.message && (
-                  <p className='mt-1 text-sm text-red-400'>
-                    {errors.message.message}
-                  </p>
-                )}
-                <div className='mt-1 text-xs text-gray-400'>
-                  {messageCharCount}
+                  <div className="mt-1 text-xs text-muted">
+                    {messageCharCount}
+                  </div>
                 </div>
-              </motion.div>
 
-              <motion.button
-                type='submit'
-                disabled={isSubmitting || !isFormValid}
-                className={`flex w-full items-center justify-center space-x-2 rounded-xl px-8 py-4 font-semibold text-white shadow-lg transition-all duration-300 ${
-                  isFormValid && !isSubmitting
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 hover:shadow-xl'
-                    : 'cursor-not-allowed bg-gradient-to-r from-gray-600 to-gray-700'
-                }`}
-                variants={buttonHover}
-                whileHover={isFormValid && !isSubmitting ? 'hover' : {}}
-                whileTap={isFormValid && !isSubmitting ? 'tap' : {}}
-              >
-                {isSubmitting ? (
-                  <>
-                    <motion.div
-                      className='h-5 w-5 rounded-full border-b-2 border-white'
-                      animate={{ rotate: 360 }}
-                      transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        ease: 'linear',
-                      }}
-                    ></motion.div>
-                    <span>Sending...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send size={20} />
-                    <span>Send Message</span>
-                  </>
-                )}
-              </motion.button>
-            </motion.form>
-          </motion.div>
-        </div>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !isFormValid}
+                  className={`${primaryButton} w-full disabled:cursor-not-allowed disabled:bg-rule disabled:text-muted`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2
+                        size={18}
+                        className="animate-spin"
+                        aria-hidden="true"
+                      />
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send size={18} aria-hidden="true" />
+                      <span>Send Message</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        ) : (
+          <ContactPanel socialLinks={socialLinks} />
+        )}
       </div>
 
       {/* Notification Component */}
-      <Notification
-        type={notification.type}
-        title={notification.title}
-        {...(notification.message && { message: notification.message })}
-        isVisible={notification.isVisible}
-        onClose={closeNotification}
-        autoClose={true}
-        duration={5000}
-      />
-    </motion.section>
+      {SHOW_CONTACT_FORM && (
+        <Notification
+          type={notification.type}
+          title={notification.title}
+          {...(notification.message && { message: notification.message })}
+          isVisible={notification.isVisible}
+          onClose={closeNotification}
+          autoClose={true}
+          duration={5000}
+        />
+      )}
+    </section>
   );
 };
 
