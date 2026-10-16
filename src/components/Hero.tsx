@@ -1,346 +1,264 @@
-import { motion } from "framer-motion";
-import { ChevronDown, Download, Github, Linkedin, Mail } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Mail } from "lucide-react";
+import { Github, Linkedin } from "./BrandIcons";
 import React from "react";
 import { Link } from "react-router-dom";
+import { EMAIL, EMAIL_HREF } from "../constants/contact";
 import { ROUTES } from "../constants/paths";
-import {
-  bounceIn,
-  enhancedButtonHover,
-  fadeInDown,
-  fadeInUp,
-  fastStaggerContainer,
-  floatingElement,
-  floatingElementDelayed,
-  staggerContainer,
-} from "../utils/animations";
-import { addPerformanceClasses, instantTransition } from "../utils/performance";
 
-// Import the image directly
 import dpImageUrl from "../assets/profile_img/dp.avif";
+
+const NAME = "R.Krishnaprasad";
+const TYPE_STEP = 0.07; // seconds per typed character
+const AFTER_TYPING = NAME.length * TYPE_STEP + 0.15;
+const RESTING_GLOW = "0 0 32px rgba(255,77,94,0.18)";
+
+// Size the name to its column so it fills one line at any width, whatever its
+// length. Martian Mono at 75% width is ~0.6em per character; +0.8em for the caret.
+const NAME_FONT_SIZE = `min(4.5rem, ${(100 / (NAME.length * 0.6 + 0.8)).toFixed(2)}cqw)`;
+
+const socialLinks = [
+  {
+    href: "https://github.com/rkwebforge",
+    label: "GitHub profile",
+    icon: Github,
+    external: true,
+  },
+  {
+    href: "https://www.linkedin.com/in/krishnaprasad-r-2261371a3",
+    label: "LinkedIn profile",
+    icon: Linkedin,
+    external: true,
+  },
+  {
+    href: EMAIL_HREF,
+    label: `Email ${EMAIL}`,
+    icon: Mail,
+    external: false,
+  },
+];
+
 const Hero: React.FC = () => {
-  const scrollToSkills = () => {
-    const element = document.getElementById("skills");
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  const reduceMotion = useReducedMotion();
+
+  // The page's one orchestrated moment: the name types in, then the rest appears.
+  const reveal = (delay: number) =>
+    reduceMotion
+      ? {}
+      : {
+          initial: { opacity: 0 },
+          animate: { opacity: 1 },
+          transition: { duration: 0.4, delay },
+        };
+
+  const chars = NAME.split("");
+  const typedAt = (i: number) => 0.2 + i * TYPE_STEP;
+
+  // A solid caret shown only between two keystrokes. Its negative margin cancels
+  // its width, so it sits in the gap of the not-yet-typed letter without moving
+  // anything; together they make the caret appear to advance as the name types.
+  const passingCaret = (from: number, to: number) => (
+    <motion.span
+      className="caret -mr-[0.67em]"
+      style={{ animation: "none" }}
+      initial={{ opacity: from === 0 ? 1 : 0 }}
+      animate={{ opacity: [1, 1, 0] }}
+      transition={{
+        duration: to - from,
+        delay: from,
+        times: [0, 0.999, 1],
+      }}
+    />
+  );
+
+  const typedChar = (char: string, i: number) => (
+    <motion.span
+      key={i}
+      {...(reduceMotion
+        ? {}
+        : {
+            initial: { opacity: 0 },
+            animate: { opacity: 1 },
+            transition: { duration: 0, delay: typedAt(i) },
+          })}
+    >
+      {char}
+      {!reduceMotion &&
+        i < chars.length - 1 &&
+        passingCaret(typedAt(i), typedAt(i + 1))}
+    </motion.span>
+  );
 
   return (
-    <motion.section
-      id="home"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 pb-16 pt-24"
-      variants={staggerContainer}
-      initial="initial"
-      animate="animate"
-    >
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-accent-900/30 via-dark-900 to-primary-900/30"></div>
+    <section id="home" className="flex min-h-screen items-center pb-16 pt-28">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 text-center sm:px-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:gap-16 xl:text-left">
+        <div className="@container min-w-0">
+          <motion.p className="mb-4 text-lg text-muted" {...reveal(0)}>
+            Hi, I'm
+          </motion.p>
 
-      {/* Floating elements */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-gradient-to-r from-accent-500/40 to-accent-400/30 blur-2xl"
-          variants={floatingElement}
-          initial="initial"
-          animate="animate"
-        ></motion.div>
-        <motion.div
-          className="absolute -bottom-20 -left-20 h-80 w-80 rounded-full bg-gradient-to-r from-primary-500/40 to-primary-400/30 blur-2xl"
-          variants={floatingElementDelayed(2)}
-          initial="initial"
-          animate="animate"
-        ></motion.div>
-        <motion.div
-          className="absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-gradient-to-r from-secondary-500/30 to-secondary-400/20 blur-2xl"
-          variants={floatingElementDelayed(4)}
-          initial="initial"
-          animate="animate"
-        ></motion.div>
-        {/* Additional smaller floating elements for more depth */}
-        <motion.div
-          className="absolute right-1/4 top-1/4 h-40 w-40 rounded-full bg-gradient-to-r from-accent-400/25 to-primary-400/20 blur-xl"
-          variants={floatingElementDelayed(1)}
-          initial="initial"
-          animate="animate"
-        ></motion.div>
-        <motion.div
-          className="absolute bottom-1/4 left-1/4 h-60 w-60 rounded-full bg-gradient-to-r from-primary-400/25 to-secondary-400/20 blur-xl"
-          variants={floatingElementDelayed(3)}
-          initial="initial"
-          animate="animate"
-        ></motion.div>
-      </div>
-
-      <motion.div
-        className="relative z-10 mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8"
-        variants={fastStaggerContainer}
-        initial="initial"
-        animate="animate"
-      >
-        <motion.div variants={fadeInDown}>
-          <motion.div className="mb-6" variants={bounceIn}>
-            <motion.div
-              className="mx-auto mb-6 flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-accent-500 via-primary-500 to-secondary-500 p-1 sm:h-40 sm:w-40 lg:h-52 lg:w-52"
-              initial={{
-                scale: 0.8,
-                opacity: 0,
-                rotate: -10,
-                y: 30,
-              }}
-              animate={{
-                scale: 1,
-                opacity: 1,
-                rotate: 0,
-                y: 0,
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 200,
-                damping: 20,
-                delay: 0.3,
-                duration: 0.8,
-                backgroundPosition: {
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "linear",
-                },
-              }}
-              whileHover={{
-                scale: 1.12,
-                rotate: [0, -3, 3, -2, 2, 0],
-                boxShadow: [
-                  "0 0 0 rgba(99, 102, 241, 0)",
-                  "0 0 30px rgba(99, 102, 241, 0.4)",
-                  "0 0 50px rgba(99, 102, 241, 0.6)",
-                ],
-                transition: {
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 10,
-                  duration: 0.6,
-                  rotate: {
-                    duration: 0.8,
-                    ease: "easeInOut",
-                  },
-                  boxShadow: {
-                    duration: 0.5,
-                    ease: "easeInOut",
-                  },
-                },
-              }}
-              whileTap={{
-                scale: 0.95,
-                transition: { duration: 0.1 },
-              }}
-              style={{
-                background:
-                  "linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4)",
-                backgroundSize: "300% 300%",
-              }}
-            >
-              <motion.img
-                src={dpImageUrl}
-                alt="Profile Picture"
-                className="h-full w-full rounded-full object-cover"
-                initial={{ scale: 1.1, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{
-                  delay: 0.5,
-                  duration: 0.6,
-                  ease: "easeOut",
-                }}
-                whileHover={{
-                  scale: 1.05,
-                  filter: [
-                    "brightness(1) contrast(1) saturate(1)",
-                    "brightness(1.1) contrast(1.1) saturate(1.2)",
-                  ],
-                  transition: {
-                    duration: 0.4,
-                    ease: "easeOut",
-                  },
-                }}
-              />
-            </motion.div>
-          </motion.div>
-
-          <motion.h1
-            className="mb-6 text-3xl font-bold sm:text-4xl md:text-6xl lg:text-7xl"
-            variants={fadeInUp}
-            whileHover={{
-              scale: 1.02,
-              transition: { duration: 0.3, ease: "easeOut" },
-            }}
+          <h1
+            aria-label={NAME}
+            className="font-bold leading-tight text-white font-stretch-75%"
+            style={{ fontSize: NAME_FONT_SIZE }}
           >
-            <motion.span
-              className="mb-2 block text-white"
-              variants={fadeInUp}
-              whileHover={{
-                color: "#f8fafc",
-                textShadow: "0 0 20px rgba(248, 250, 252, 0.5)",
-                transition: { duration: 0.3 },
-              }}
-            >
-              Hi, I'm
-            </motion.span>
-            <motion.span
-              className="block bg-gradient-to-r from-accent-400 via-primary-400 to-secondary-400 bg-clip-text text-transparent"
-              variants={fadeInUp}
-              style={{ backgroundSize: "200% 200%" }}
-              animate={{
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-              whileHover={{
-                scale: 1.05,
-                textShadow: "0 0 30px rgba(99, 102, 241, 0.5)",
-                transition: { duration: 0.3, ease: "easeOut" },
-              }}
-            >
-              RK Prasad
-            </motion.span>
-          </motion.h1>
+            <span aria-hidden="true">
+              {!reduceMotion && passingCaret(0, typedAt(0))}
+              {chars.slice(0, -1).map(typedChar)}
+              {/* Keep the caret glued to the last letter so it never wraps alone */}
+              <span className="whitespace-nowrap">
+                {typedChar(chars[chars.length - 1] ?? "", chars.length - 1)}
+                {/* The resting caret takes over, blinking, once the last letter lands */}
+                <motion.span
+                  {...(reduceMotion
+                    ? {}
+                    : {
+                        initial: { opacity: 0 },
+                        animate: { opacity: 1 },
+                        transition: {
+                          duration: 0,
+                          delay: typedAt(chars.length - 1),
+                        },
+                      })}
+                >
+                  <span className="caret" />
+                </motion.span>
+              </span>
+            </span>
+          </h1>
 
           <motion.p
-            className="mx-auto mb-8 max-w-3xl px-4 text-lg leading-relaxed text-gray-300 sm:text-xl md:text-2xl"
-            variants={fadeInUp}
-            whileHover={{
-              scale: 1.01,
-              color: "#e5e7eb",
-              transition: { duration: 0.3, ease: "easeOut" },
-            }}
+            className="mx-auto mt-8 max-w-2xl text-xl leading-relaxed text-fg xl:mx-0"
+            {...reveal(AFTER_TYPING)}
           >
-            A passionate{" "}
-            <motion.span
-              className="font-semibold text-accent-400"
-              whileHover={{
-                color: "#fbbf24",
-                textShadow: "0 0 15px rgba(251, 191, 36, 0.6)",
-                scale: 1.05,
-                transition: { duration: 0.2 },
-              }}
-              style={{ display: "inline-block" }}
+            Full Stack Developer in Trivandrum. I build web apps with Laravel
+            and React, and I made{" "}
+            <a
+              href="https://www.bladewellui.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent underline-offset-4 hover:underline"
             >
-              Front-End Developer
-            </motion.span>{" "}
-            crafting beautiful, responsive web experiences with modern
-            technologies and innovative solutions.
+              Bladewell
+            </a>
+            , an open-source component library for Laravel.
           </motion.p>
 
           <motion.div
-            className="mb-12 flex flex-col items-center justify-center gap-4 px-4 sm:flex-row sm:flex-wrap sm:gap-6 sm:px-0"
-            variants={fadeInUp}
+            className="mt-10 flex flex-wrap items-center justify-center gap-4 xl:justify-start"
+            {...reveal(AFTER_TYPING + 0.15)}
           >
-            <motion.div
-              className="w-full max-w-xs sm:w-auto"
-              variants={enhancedButtonHover}
-              initial="rest"
-              whileHover="hover"
-              whileTap="tap"
-              transition={instantTransition}
+            <Link
+              to={ROUTES.PROJECTS}
+              className="inline-flex items-center gap-2 rounded-md bg-accent px-5 py-3 font-display text-sm font-medium text-ink transition-colors hover:bg-accent-strong"
             >
-              <Link
-                to={ROUTES.PROJECTS}
-                className={addPerformanceClasses(
-                  "block w-full transform rounded-full bg-gradient-to-r from-accent-600 via-accent-500 to-primary-500 px-8 py-4 text-center text-base font-semibold text-white shadow-lg transition-all duration-300 hover:shadow-xl sm:w-auto sm:px-8 sm:py-4 sm:text-lg",
-                  "button"
-                )}
-              >
-                View My Work
-              </Link>
-            </motion.div>
-            <motion.div
-              className="w-full max-w-xs sm:w-auto"
-              variants={enhancedButtonHover}
-              initial="rest"
-              whileHover="hover"
-              whileTap="tap"
-              transition={instantTransition}
+              View my work
+            </Link>
+            <Link
+              to={ROUTES.CONTACT}
+              className="inline-flex items-center gap-2 rounded-md border border-rule px-5 py-3 font-display text-sm font-medium text-fg transition-colors hover:border-accent hover:text-accent"
             >
-              <Link
-                to={ROUTES.CONTACT}
-                className={addPerformanceClasses(
-                  "block w-full transform rounded-full border-2 border-secondary-400 px-8 py-4 text-center text-base font-semibold text-secondary-400 transition-all duration-300 hover:bg-secondary-400 hover:text-dark-900 hover:shadow-lg sm:w-auto sm:px-8 sm:py-4 sm:text-lg",
-                  "button"
-                )}
-              >
-                Get In Touch
-              </Link>
-            </motion.div>
-            <motion.button
-              className={addPerformanceClasses(
-                "flex w-full max-w-xs transform items-center justify-center space-x-2 rounded-full border border-dark-700 bg-dark-800/50 px-8 py-4 text-base font-semibold text-white transition-all duration-300 hover:border-primary-500 hover:bg-gradient-to-r hover:from-primary-600/20 hover:to-accent-600/20 sm:w-auto sm:px-8 sm:py-4 sm:text-lg",
-                "button"
-              )}
-              variants={enhancedButtonHover}
-              initial="rest"
-              whileHover="hover"
-              whileTap="tap"
-              transition={instantTransition}
-            >
-              <Download size={20} />
-              <span>Resume</span>
-            </motion.button>
-          </motion.div>
+              Get in touch
+            </Link>
 
-          <motion.div
-            className="mb-12 flex items-center justify-center space-x-4 sm:space-x-6"
-            variants={fadeInUp}
+            <ul className="flex basis-full items-center justify-center gap-1 xl:-ml-3 xl:justify-start">
+              {socialLinks.map(({ href, label, icon: Icon, external }) => (
+                <li key={href}>
+                  <a
+                    href={href}
+                    aria-label={label}
+                    {...(external
+                      ? { target: "_blank", rel: "noopener noreferrer" }
+                      : {})}
+                    className="flex h-11 w-11 items-center justify-center rounded-md text-muted transition-colors hover:text-accent"
+                  >
+                    <Icon size={22} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        </div>
+
+        {/* Neon sign switching on: the ring traces itself while the name types,
+            then the photo flickers on and the glow settles. */}
+        <div className="relative order-first mx-auto shrink-0 xl:order-last xl:mx-0">
+          <motion.img
+            src={dpImageUrl}
+            alt={`Portrait of ${NAME}`}
+            width={320}
+            height={320}
+            className="aspect-square h-52 w-52 shrink-0 rounded-full object-cover sm:h-64 sm:w-64 lg:h-72 lg:w-72 xl:h-96 xl:w-96"
+            style={{ boxShadow: RESTING_GLOW }}
+            {...(reduceMotion
+              ? {}
+              : {
+                  initial: {
+                    opacity: 0,
+                    scale: 0.94,
+                    filter: "brightness(1.8)",
+                    boxShadow: "0 0 0 rgba(255,77,94,0)",
+                  },
+                  animate: {
+                    opacity: [0, 0.7, 0.1, 0.9, 0.35, 1],
+                    scale: 1,
+                    filter: "brightness(1)",
+                    boxShadow: [
+                      "0 0 0 rgba(255,77,94,0)",
+                      "0 0 80px rgba(255,77,94,0.55)",
+                      RESTING_GLOW,
+                    ],
+                  },
+                  transition: {
+                    opacity: {
+                      duration: 0.6,
+                      times: [0, 0.15, 0.3, 0.45, 0.6, 1],
+                      delay: AFTER_TYPING - 0.2,
+                    },
+                    scale: {
+                      duration: 0.9,
+                      ease: [0.22, 1, 0.36, 1],
+                      delay: AFTER_TYPING - 0.2,
+                    },
+                    filter: { duration: 1.2, delay: AFTER_TYPING - 0.2 },
+                    boxShadow: {
+                      duration: 1.6,
+                      times: [0, 0.35, 1],
+                      delay: AFTER_TYPING - 0.2,
+                    },
+                  },
+                })}
+          />
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 100 100"
+            className="pointer-events-none absolute inset-0 h-full w-full -rotate-90 overflow-visible text-accent"
           >
-            <motion.a
-              href="#"
-              className="transform p-2 text-gray-400 transition-all duration-300 hover:text-accent-400"
-              aria-label="GitHub Profile"
-              whileHover={{ scale: 1.3, rotate: 10 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <Github size={24} className="sm:h-7 sm:w-7" />
-            </motion.a>
-            <motion.a
-              href="#"
-              className="transform p-2 text-gray-400 transition-all duration-300 hover:text-primary-400"
-              aria-label="LinkedIn Profile"
-              whileHover={{ scale: 1.3, rotate: -10 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <Linkedin size={24} className="sm:h-7 sm:w-7" />
-            </motion.a>
-            <motion.a
-              href="#"
-              className="transform p-2 text-gray-400 transition-all duration-300 hover:text-secondary-400"
-              aria-label="Email Contact"
-              whileHover={{ scale: 1.3, rotate: 10 }}
-              whileTap={{ scale: 0.9 }}
-            >
-              <Mail size={24} className="sm:h-7 sm:w-7" />
-            </motion.a>
-          </motion.div>
-        </motion.div>
-
-        <motion.button
-          onClick={scrollToSkills}
-          className="transform text-gray-400 transition-colors duration-300 hover:text-accent-400"
-          variants={bounceIn}
-          animate={{
-            y: [0, -10, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-          whileHover={{ scale: 1.2 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <ChevronDown size={32} />
-        </motion.button>
-      </motion.div>
-    </motion.section>
+            <motion.circle
+              cx="50"
+              cy="50"
+              r="50"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              {...(reduceMotion
+                ? {}
+                : {
+                    initial: { pathLength: 0 },
+                    animate: { pathLength: 1 },
+                    transition: {
+                      duration: AFTER_TYPING - 0.2,
+                      delay: 0.2,
+                      ease: "easeInOut",
+                    },
+                  })}
+            />
+          </svg>
+        </div>
+      </div>
+    </section>
   );
 };
 

@@ -15,11 +15,8 @@ export {
   // Misc
   Download,
   ExternalLink,
-  // Social Media
-  Github,
   Heart,
   Info,
-  Linkedin,
   // Contact & Communication
   Mail,
   MapPin,
@@ -27,6 +24,8 @@ export {
   MessageCircle,
   Phone,
   Send,
-  Twitter,
   X,
 } from 'lucide-react';
+
+// Social Media
+export { Github, Linkedin, Twitter } from '../components/BrandIcons';

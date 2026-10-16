@@ -1,7 +1,8 @@
-import { AnimatePresence } from 'framer-motion';
-import React, { useEffect, useState } from 'react';
-import { usePageReady } from '../hooks';
-import Loader from './Loader';
+import { AnimatePresence } from "framer-motion";
+import React, { useEffect, useState } from "react";
+import { usePageReady } from "../hooks";
+import Loader from "./Loader";
+import MatrixRain from "./MatrixRain";
 
 /**
  * Props for the AppWrapper component
@@ -51,7 +52,7 @@ export const AppWrapper: React.FC<AppWrapperProps> = ({
   // Add minimum load time to async operations for better UX
   const allOperations = [
     ...asyncOperations,
-    new Promise(resolve => setTimeout(resolve, minimumLoadTime)),
+    new Promise((resolve) => setTimeout(resolve, minimumLoadTime)),
   ];
 
   const { isReady, error } = usePageReady(allOperations);
@@ -69,33 +70,33 @@ export const AppWrapper: React.FC<AppWrapperProps> = ({
   // Prevent scrolling while loader is visible
   useEffect(() => {
     if (isLoading) {
-      document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.top = '0';
-      document.body.style.left = '0';
-      document.body.style.right = '0';
+      document.body.style.overflow = "hidden";
+      document.body.style.position = "fixed";
+      document.body.style.top = "0";
+      document.body.style.left = "0";
+      document.body.style.right = "0";
     } else {
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
     }
 
     return () => {
       // Cleanup on unmount
-      document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
+      document.body.style.overflow = "";
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.left = "";
+      document.body.style.right = "";
     };
   }, [isLoading]);
 
   // Log errors in development
   useEffect(() => {
     if (error && import.meta.env.DEV) {
-      console.warn('AppWrapper: Error during loading:', error);
+      console.warn("AppWrapper: Error during loading:", error);
     }
   }, [error]);
 
@@ -105,22 +106,28 @@ export const AppWrapper: React.FC<AppWrapperProps> = ({
 
   return (
     <>
-      <AnimatePresence mode='wait'>
+      {/* Rendered outside the hidden app so it runs behind the loader too */}
+      <MatrixRain />
+
+      <AnimatePresence mode="wait">
         {isLoading && (
           <Loader
-            key='loader'
+            key="loader"
             isVisible={isLoading}
             onAnimationComplete={handleLoaderComplete}
           />
         )}
       </AnimatePresence>
 
-      {/* Main app - hidden while loading for accessibility */}
+      {/* Main app - hidden while loading for accessibility.
+          overflow-x-clip contains slide-in animations; iOS Safari ignores
+          overflow on <html>/<body>, so it must live on a wrapper element. */}
       <div
+        className="overflow-x-clip"
         aria-hidden={isLoading}
         style={{
-          visibility: isLoading ? 'hidden' : 'visible',
-          position: isLoading ? 'fixed' : 'relative',
+          visibility: isLoading ? "hidden" : "visible",
+          position: isLoading ? "fixed" : "relative",
         }}
       >
         {children}

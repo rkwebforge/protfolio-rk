@@ -109,30 +109,20 @@ src/
 
 ## 🎨 Customization
 
-### Colors
+### Colors and fonts
 
-Modify the color palette in `tailwind.config.js`:
+Tailwind v4 is configured in CSS; there is no `tailwind.config.js`. Edit the `@theme` block at the top of `src/index.css`:
 
-```javascript
-theme: {
-  extend: {
-    colors: {
-      primary: { /* your colors */ },
-      // ...
-    }
-  }
+```css
+@theme {
+  --color-ink: #1c2128; /* page background */
+  --color-accent: #ff4d5e; /* the accent */
+  --font-display: 'Martian Mono', ui-monospace, monospace;
+  /* ... */
 }
 ```
 
-### Typography
-
-Update fonts in `tailwind.config.js`:
-
-```javascript
-fontFamily: {
-  sans: ['Your Font', 'system-ui', 'sans-serif'],
-}
-```
+Each token becomes a utility class (`bg-ink`, `text-accent`, `font-display`). Fonts are loaded from Google Fonts in `index.html`.
 
 ### Content
 

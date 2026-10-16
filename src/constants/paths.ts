@@ -37,6 +37,15 @@ export const NAV_ITEMS = [
   { id: 4, path: ROUTES.SINGLE_PAGE, label: "Single Page" },
 ] as const;
 
+// Section anchors on the single page, in scroll order
+export const SINGLE_PAGE_SECTIONS = [
+  "hero",
+  "skills",
+  "about",
+  "projects",
+  "contact",
+] as const;
+
 // Type definitions
 export type RouteKey = keyof typeof ROUTES;
 export type RoutePath = (typeof ROUTES)[RouteKey];

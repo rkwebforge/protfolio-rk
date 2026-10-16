@@ -1,6 +1,6 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
-import React, { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from "framer-motion";
+import { Check, ChevronDown } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface Option {
   value: string;
@@ -22,26 +22,26 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   options,
   value,
   onChange,
-  placeholder = 'Select an option',
-  className = '',
+  placeholder = "Select an option",
+  className = "",
   label,
   icon,
   maxDisplayLength = 25,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const selectRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const filteredOptions = options.filter(option =>
-    option.label.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredOptions = options.filter((option) =>
+    option.label.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const selectedOption = options.find(option => option.value === value);
+  const selectedOption = options.find((option) => option.value === value);
 
   const truncateText = (text: string, maxLength: number) => {
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength - 3) + '...';
+    return text.substring(0, maxLength - 3) + "...";
   };
 
   useEffect(() => {
@@ -51,12 +51,12 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
         !selectRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
-        setSearchTerm('');
+        setSearchTerm("");
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   useEffect(() => {
@@ -68,124 +68,99 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   const handleToggle = () => {
     setIsOpen(!isOpen);
     if (!isOpen) {
-      setSearchTerm('');
+      setSearchTerm("");
     }
   };
 
   const handleOptionSelect = (optionValue: string) => {
     onChange(optionValue);
     setIsOpen(false);
-    setSearchTerm('');
+    setSearchTerm("");
   };
 
   const dropdownVariants = {
-    hidden: {
-      opacity: 0,
-      y: -10,
-      scale: 0.95,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-    },
-    exit: {
-      opacity: 0,
-      y: -10,
-      scale: 0.95,
-    },
-  };
-
-  const optionVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      x: 0,
-      transition: {
-        delay: i * 0.02,
-        duration: 0.2,
-      },
-    }),
+    hidden: { opacity: 0, y: -4 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.15 } },
+    exit: { opacity: 0, y: -4, transition: { duration: 0.1 } },
   };
 
   return (
-    <div className='relative' ref={selectRef}>
+    <div className="relative" ref={selectRef}>
       {label && (
-        <label className='mb-2 flex items-center text-sm font-medium text-gray-300'>
-          {icon && <span className='mr-1 inline'>{icon}</span>}
+        <label className="mb-2 flex items-center gap-1.5 text-sm font-medium text-fg">
+          {icon && <span className="inline text-muted">{icon}</span>}
           {label}
         </label>
       )}
 
-      <motion.div
-        className={`relative w-full rounded-xl border border-dark-600 bg-dark-800/50 transition-all duration-300 focus-within:border-accent-500 focus-within:ring-2 focus-within:ring-accent-500 ${className}`}
-        whileFocus={{ scale: 1.02 }}
+      <div
+        className={`relative w-full rounded-md border border-rule bg-raised transition-colors focus-within:border-accent ${className}`}
       >
         <button
-          type='button'
+          type="button"
           onClick={handleToggle}
-          className='flex w-full items-center justify-between px-4 py-4 text-left text-white'
-          aria-haspopup='listbox'
+          className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left"
+          aria-haspopup="listbox"
           aria-expanded={isOpen}
         >
-          <span className='block truncate'>
+          <span
+            className={`block truncate ${selectedOption ? "text-fg" : "text-muted"}`}
+          >
             {selectedOption
               ? truncateText(selectedOption.label, maxDisplayLength)
               : truncateText(placeholder, maxDisplayLength)}
           </span>
-          <motion.div
-            animate={{ rotate: isOpen ? 180 : 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <ChevronDown size={20} className='text-gray-400' />
-          </motion.div>
+          <ChevronDown size={18} className="shrink-0 text-muted" />
         </button>
 
         <AnimatePresence>
           {isOpen && (
             <motion.div
-              className='absolute z-50 mt-1 w-full rounded-xl border border-dark-600 bg-dark-800/95 shadow-xl backdrop-blur-sm'
+              className="absolute z-50 mt-1 w-full rounded-md border border-rule bg-raised"
               variants={dropdownVariants}
-              initial='hidden'
-              animate='visible'
-              exit='exit'
+              initial="hidden"
+              animate="visible"
+              exit="exit"
             >
-              <div className='p-2'>
+              <div className="border-b border-rule p-2">
                 <input
                   ref={inputRef}
-                  type='text'
-                  placeholder='Search options...'
+                  type="text"
+                  placeholder="Search options..."
                   value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
-                  className='w-full rounded-lg border border-dark-600 bg-dark-700/50 px-3 py-2 text-sm text-white placeholder-gray-400 focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500'
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full rounded-md border border-rule bg-ink px-3 py-2 text-sm text-fg transition-colors placeholder:text-muted focus:border-accent"
                 />
               </div>
 
-              <div className='max-h-56 overflow-y-auto'>
+              <div className="max-h-56 overflow-y-auto py-1">
                 {filteredOptions.length > 0 ? (
-                  filteredOptions.map((option, index) => (
-                    <motion.button
-                      key={option.value}
-                      type='button'
-                      onClick={() => handleOptionSelect(option.value)}
-                      className={`flex w-full items-center px-4 py-3 text-left text-sm transition-all duration-200 hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-cyan-600/20 ${
-                        value === option.value
-                          ? 'bg-gradient-to-r from-purple-600/30 to-cyan-600/30 text-white'
-                          : 'text-gray-300 hover:text-white'
-                      }`}
-                      variants={optionVariants}
-                      initial='hidden'
-                      animate='visible'
-                      custom={index}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <span className='w-full truncate'>
-                        {truncateText(option.label, maxDisplayLength)}
-                      </span>
-                    </motion.button>
-                  ))
+                  filteredOptions.map((option) => {
+                    const isSelected = value === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => handleOptionSelect(option.value)}
+                        className={`flex w-full items-center justify-between gap-2 px-3 py-2.5 text-left text-sm transition-colors hover:bg-accent/10 hover:text-white focus-visible:bg-accent/10 focus-visible:text-white ${
+                          isSelected ? "text-white" : "text-fg"
+                        }`}
+                      >
+                        <span className="truncate">
+                          {truncateText(option.label, maxDisplayLength)}
+                        </span>
+                        {isSelected && (
+                          <Check
+                            size={16}
+                            className="shrink-0 text-accent"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </button>
+                    );
+                  })
                 ) : (
-                  <div className='px-4 py-3 text-sm text-gray-400'>
+                  <div className="px-3 py-2.5 text-sm text-muted">
                     No options found!
                   </div>
                 )}
@@ -193,7 +168,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
     </div>
   );
 };
