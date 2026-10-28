@@ -131,8 +131,8 @@ const Hero: React.FC = () => {
             className="mx-auto mt-8 max-w-2xl text-xl leading-relaxed text-fg xl:mx-0"
             {...reveal(AFTER_TYPING)}
           >
-            Full Stack Developer in Trivandrum. I build web apps with Laravel
-            and React, and I made{" "}
+            Full Stack Developer. I build web apps with Laravel and React, and I
+            made{" "}
             <a
               href="https://www.bladewellui.com/"
               target="_blank"
